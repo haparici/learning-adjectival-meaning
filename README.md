@@ -1,0 +1,3 @@
+# Learning Adjectival Meanings
+
+
