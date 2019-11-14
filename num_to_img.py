@@ -12,15 +12,6 @@ import matplotlib.patches as patches
 """
 COLORS = 'bgrcmykw'
 
-def vector_to_stimulus(vector):
-    assert len(vector) == 5, "Wrong number of arguments"
-    r1,r2,c1,c2,pelty = vector
-    assert type(r1) == int or type(r1) == float, "Radius must be an int or float"
-    assert type(r2) == int or type(r2) == float, "Radius must be an int or float"
-    assert c1 in COLORS, "Not a valid color"
-    assert c2 in COLORS, "Not a valid color"
-    return Stimulus(r1,r2,c1,c2,pelty)
-
 class Stimulus:
     def __init__(self, r1,r2,c1,c2,pelty):
         self.r1 = r1
@@ -29,7 +20,10 @@ class Stimulus:
         assert self.r2 <= 0.5, "Radii must be less than 0.5 to fit"
         self.c1 = c1
         self.c2 = c2
-        self.pelty_string = pelty
+        assert self.c1 in COLORS, "Not a valid color"
+        assert self.c2 in COLORS, "Not a valid color"
+
+        self.pelty_string = pelty[0].upper()+pelty[1:].lower()
         self.pelty = self.parse_pelty(self.pelty_string)
 
     def get_r1(self):
@@ -65,6 +59,12 @@ class Stimulus:
         #TODO: Should we be returning pelty_string or pelty value?
         return np.array([self.r1, self.r2, self.c1, self.c2, self.pelty_string])
 
+    def __eq__(self,obj):
+        return obj.r1 == self.r1 and obj.r2 == self.r2 and obj.c1 == self.c1 and obj.c2 == self.c2 and obj.pelty_string == self.pelty_string
+
+    def __str__(self):
+        return "%s stimulus with inner radius %.3f, outer radius %.3f, colors %s and %s." % (self.pelty_string, self.r1, self.r2, self.c1, self.c2)
+
     def show(self,save=False):
         """Displays the stimulus in a graph"""
 
@@ -83,21 +83,50 @@ class Stimulus:
             plt.savefig("imgs/stimulus_"+str(self.r1)+"_"+str(self.r2)+".png")
         plt.show()
 
+def read_stimuli_from_file(filename):
+    stimuli = []
+    with open(filename) as fp:
+        line = fp.readline() #skip first line
+        line = fp.readline()
+        while line and len(line) > 1:
+            entries = line.strip("\n").split(",")
+            assert len(entries) == 5, "Invalid number of arguments for a Stimulus"
+            r1 = float(entries[0])
+            r2 = float(entries[1])
+            c1, c2, pelty = entries[2:]
+            stimuli.append(Stimulus(r1,r2,c1,c2,pelty))
+            line = fp.readline()
+
+    return stimuli
+
+def vector_to_stimulus(vector):
+    assert len(vector) == 5, "Wrong number of arguments"
+    r1,r2,c1,c2,pelty = vector
+    assert type(r1) == int or type(r1) == float, "Radius must be an int or float"
+    assert type(r2) == int or type(r2) == float, "Radius must be an int or float"
+    assert c1 in COLORS, "Not a valid color"
+    assert c2 in COLORS, "Not a valid color"
+    return Stimulus(r1,r2,c1,c2,pelty)
+
 
 if __name__ == "__main__":
 
     # some basic tests
-    vector = [.2,.4,"r","b","pelty"]
+    vector = [.2,.4,"r","b","Pelty"]
     stimulus = vector_to_stimulus(vector)
     assert stimulus.get_r1() == .2
     assert stimulus.get_r2() == .4
     assert stimulus.get_c1() == "r"
     assert stimulus.get_c2() == "b"
-    assert stimulus.get_pelty_string() == "pelty"
+    assert stimulus.get_pelty_string() == "Pelty"
 
-    stimulus2 = Stimulus(.1,.35,"g","b","not pelty")
+    stimulus2 = Stimulus(.1,.35,"g","b","Not pelty")
     vector2 = stimulus2.to_vector()
-    assert np.array_equal(vector2, np.array([.1,.35,"g","b","not pelty"]))
+    assert np.array_equal(vector2, np.array([.1,.35,"g","b","Not pelty"]))
+
+    stimuli = read_stimuli_from_file("stimuli_test.txt")
+    assert stimuli[0] == stimulus
+    assert stimuli[1] != stimulus
 
     #uncomment below to show graphs
     # stimulus.show()
