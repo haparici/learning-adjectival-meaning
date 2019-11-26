@@ -1,0 +1,39 @@
+ var obs = [{property:[0.1,0.2],peltyness:"not P"},
+            {property:[0.1,0.3],peltyness:"not P"},
+            {property:[0.1,0.3],peltyness:"not P"},
+            {property:[0.2,0.3],peltyness:"P"},
+            {property:[0.3,0.3],peltyness:"P"},
+            {property:[0.35,0.3],peltyness:"very P"},
+            {property:[0.35,0.1],peltyness:"very P"},
+           ]
+
+ var test = function(obj,rule){
+   return (obj[rule.measure] -  rule.theta - rule.epsilon) * rule.polarity > 0 ? "very P" : (obj[rule.measure] - rule.theta) * rule.polarity > 0 ? "P" : "not P"
+ }
+
+
+ var gradrule = function(){
+   var theta = sample(Uniform({a:0.1,b:0.5}))
+   var polarity = sample(Categorical({vs:[-1,1],ps:[0.5,0.5]}))
+   var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
+   var epsilon = sample(Uniform({a:0,b:0.25}))
+   var rule = {measure:measure,theta:theta,polarity:polarity,epsilon:epsilon}
+   return rule
+ }
+
+ var model = function() {
+   var g = gradrule();
+   var f = function(obj){return test(obj,g)}
+
+   condition(f(obs[0].property) == obs[0].peltyness);
+   condition(f(obs[1].property) == obs[1].peltyness);
+   condition(f(obs[2].property) == obs[2].peltyness);
+   condition(f(obs[3].property) == obs[3].peltyness);
+   condition(f(obs[4].property) == obs[4].peltyness);
+   condition(f(obs[5].property) == obs[5].peltyness);
+   condition(f(obs[6].property) == obs[6].peltyness);
+
+   return {measure:g.measure,epsilon:g.epsilon};
+ }
+ var dist = Infer({method: 'MCMC', samples: 10000}, model)
+ viz(dist)
