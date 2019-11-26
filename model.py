@@ -11,7 +11,7 @@ from pyro.infer import MCMC, NUTS
 
 from num_to_img import Stimulus
 
-def model(data):
+def model(data, measure, polarity, bounds):
     def grad(datum):
         '''
         computes the rule if the adj is gradable
@@ -20,7 +20,7 @@ def model(data):
         # return [rule1,rule2,rule3][i](datum)
 
     def rule1(datum):
-        return 1 if (datum.get_r1() - threshold) * (polarity*2-1) > 0 else 0
+        return 1 if (measure(datum) - threshold) * (polarity*2-1) > 0 else 0
     #
     # def rule2(datum):
     #     return 1 if (datum.get_r1() - threashold) * (polarity*2-1) > 0 else 0
@@ -34,11 +34,11 @@ def model(data):
 
     #TODO: figure out why this polarity sample is not working
     #set polarity to 1, the program infers the threashold
-    polarity = 1 #pyro.sample("polarity", dist.Bernoulli(torch.tensor([0.5])))
+    # polarity = 1 #pyro.sample("polarity", dist.Bernoulli(torch.tensor([0.5])))
     #print(polarity)
 
 
-    threshold = pyro.sample("threshold", dist.Uniform(0.3,2.0))
+    threshold = pyro.sample("threshold", dist.Uniform(bounds[0],bounds[1]))
 
     for i in range(len(data)):
         res = torch.tensor(compute(data[i]),dtype = torch.float32)
@@ -54,9 +54,15 @@ if __name__ == "__main__":
     data.append(Stimulus(0.2,0.3,'b','g',"not pelty"))
     data.append(Stimulus(0.3,0.4,'b','g',"not pelty"))
 
+    def measure(datum):
+        return datum.get_r1()
+    bounds = [0.1, 0.3]
+
+    polarity = 1
+
     nuts_kernel = NUTS(model)
     mcmc = MCMC(nuts_kernel,
-                num_samples=1000,
+                num_samples=100,
                 num_chains=1)
-    mcmc.run(data)
+    mcmc.run(data, measure, polarity, bounds)
     mcmc.summary(prob=0.95)
