@@ -1,10 +1,10 @@
- var obs = [{property:[0.1,0.2],peltyness:"not P"},
-            {property:[0.1,0.3],peltyness:"not P"},
-            {property:[0.1,0.3],peltyness:"not P"},
-            {property:[0.2,0.3],peltyness:"P"},
-            {property:[0.3,0.3],peltyness:"P"},
-            {property:[0.35,0.3],peltyness:"very P"},
-            {property:[0.35,0.1],peltyness:"very P"},
+ var obs = [{property:[0.1,0.2,'k'],peltyness:"not P"},
+            {property:[0.1,0.3,'r'],peltyness:"not P"},
+            {property:[0.1,0.3,'g'],peltyness:"not P"},
+            {property:[0.2,0.3,'b'],peltyness:"P"},
+            {property:[0.3,0.3,'b'],peltyness:"P"},
+            {property:[0.35,0.3,'b'],peltyness:"very P"},
+            {property:[0.35,0.1,'b'],peltyness:"very P"},
            ]
 
  var test = function(obj,rule){
@@ -15,11 +15,26 @@
  var gradrule = function(){
    var theta = sample(Uniform({a:0.1,b:0.5}))
    var polarity = sample(Categorical({vs:[-1,1],ps:[0.5,0.5]}))
-   var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
+   var measure = sample(Categorical({vs:[0,1,2],ps:[0.33,0.33,0.33]}))
    var epsilon = sample(Uniform({a:0,b:0.25}))
    var rule = {measure:measure,theta:theta,polarity:polarity,epsilon:epsilon}
    return rule
  }
+
+
+ var nongradtest = function(obj,rule){
+   return (obj[rule.measure] == rule.value) ? "P" : "not P"
+ }
+
+ 
+
+ var nongradrule = function(){
+  var value = sample(Categorical({vs:['b','g','r','c','m','y','k','w'],ps: [0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
+   var measure = sample(Categorical({vs:[0,1,2],ps:[0.33,0.33,0.33]}))
+   var rule = {measure:measure,value:value}
+   return rule
+ }
+
 
  var model = function() {
    var g = gradrule();
@@ -37,3 +52,19 @@
  }
  var dist = Infer({method: 'MCMC', samples: 10000}, model)
  viz(dist)
+
+
+ var nongradmodel = function() {
+   var g = nongradrule();
+   var f = function(obj){return nongradtest(obj,g)}
+
+   condition(f(obs[0].property) == obs[0].peltyness);
+   condition(f(obs[1].property) == obs[1].peltyness);
+   condition(f(obs[2].property) == obs[2].peltyness);
+   condition(f(obs[3].property) == obs[3].peltyness);
+   condition(f(obs[4].property) == obs[4].peltyness);
+
+   return {measure:g.measure,value:g.value};
+ }
+ var nongraddist = Infer({method: 'MCMC', samples: 10000}, nongradmodel)
+ viz(nongraddist)
