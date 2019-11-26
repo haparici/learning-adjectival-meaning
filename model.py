@@ -9,7 +9,7 @@ import pyro.optim
 import pyro.distributions as dist
 from pyro.infer import MCMC, NUTS
 
-from num_to_img import Stimulus
+from stimulus import Stimulus
 
 def model(data):
     def grad(datum):
