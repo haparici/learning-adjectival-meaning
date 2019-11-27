@@ -12,8 +12,8 @@
  }
 
 
- var gradrule = function(){
-   var theta = sample(Uniform({a:0.1,b:0.5}))
+ var gradrule = function(bounds){
+   var theta = sample(Uniform({a:bounds[0],b:bounds[1]}))
    var polarity = sample(Categorical({vs:[-1,1],ps:[0.5,0.5]}))
    var measure = sample(Categorical({vs:[0,1,2],ps:[0.33,0.33,0.33]}))
    var epsilon = sample(Uniform({a:0,b:0.25}))
@@ -28,8 +28,8 @@
 
  
 
- var nongradrule = function(){
-  var value = sample(Categorical({vs:['b','g','r','c','m','y','k','w'],ps: [0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
+ var nongradrule = function(bounds){
+   var value = sample(Categorical({vs:bounds[0],ps:bounds[1]}))
    var measure = sample(Categorical({vs:[0,1,2],ps:[0.33,0.33,0.33]}))
    var rule = {measure:measure,value:value}
    return rule
@@ -37,7 +37,7 @@
 
 
  var model = function() {
-   var g = gradrule();
+   var g = gradrule([0.1, 0.5]);
    var f = function(obj){return test(obj,g)}
 
    condition(f(obs[0].property) == obs[0].peltyness);
@@ -55,7 +55,7 @@
 
 
  var nongradmodel = function() {
-   var g = nongradrule();
+   var g = nongradrule([['b','g','r','c','m','y','k','w'],[0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]]);
    var f = function(obj){return nongradtest(obj,g)}
 
    condition(f(obs[0].property) == obs[0].peltyness);
