@@ -13,7 +13,7 @@ import matplotlib.patches as patches
 COLORS = 'bgrcmykw'
 
 class Stimulus:
-    def __init__(self, r1,r2,c1,c2,pelty):
+    def __init__(self, r1,r2,c1,c2,pelty=None):
         self.r1 = r1
         self.r2 = r2
         assert self.r1 <= 0.5, "Radii must be less than 0.5 to fit"
@@ -23,8 +23,12 @@ class Stimulus:
         assert self.c1 in COLORS, "Not a valid color"
         assert self.c2 in COLORS, "Not a valid color"
 
-        self.pelty_string = pelty[0].upper()+pelty[1:].lower()
-        self.pelty = self.parse_pelty(self.pelty_string)
+        if pelty is not None:
+            self.pelty_string = pelty[0].upper()+pelty[1:].lower()
+            self.pelty = self.parse_pelty(self.pelty_string)
+        else:
+            self.pelty_string = ""
+            self.pelty = None
 
     def get_r1(self):
         return self.r1
@@ -39,7 +43,8 @@ class Stimulus:
         return self.c2
 
     def get_pelty(self):
-        return self.pelty
+        if self.pelty is not None:
+            return self.pelty
 
     def get_pelty_string(self):
         return self.pelty_string
@@ -65,23 +70,29 @@ class Stimulus:
     def __str__(self):
         return "%s stimulus with inner radius %.3f, outer radius %.3f, colors %s and %s." % (self.pelty_string, self.r1, self.r2, self.c1, self.c2)
 
-    def show(self,save=False):
+    def show(self,plot_title=None,save=False,folder=None):
         """Displays the stimulus in a graph"""
-
-        title = "Pelty" if self.pelty == 1 else "Not Pelty" if self.pelty == 0 else ""
+        if plot_title:
+            title=plot_title
+        else:
+            title = "Pelty" if self.pelty == 1 else "Not Pelty" if self.pelty == 0 else ""
         inner_circle = plt.Circle((0.5,0.5),self.r1,color=self.c1,fill=False)
         inner_circle.set_label("Inner Circle")
         outer_circle = plt.Circle((0.5,0.5),self.r2,color=self.c2,fill=False)
         outer_circle.set_label("Outer Circle")
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(6,6))
         ax.add_artist(inner_circle)
         ax.add_artist(outer_circle)
         fig.suptitle(title)
         plt.legend((inner_circle,outer_circle),("Radius = "+str(self.r1),"Radius = "+str(self.r2)))
         if save:
-            plt.savefig("imgs/stimulus_"+str(self.r1)+"_"+str(self.r2)+".png")
-        plt.show()
+            if folder:
+                plt.savefig("imgs/"+folder+"/"+self.pelty_string+"_stimulus_"+str(self.r1)+"_"+str(self.r2)+"_"+self.c1+"_"+self.c2+".png")
+            else:
+                plt.savefig("imgs/"+self.pelty_string+"_stimulus_"+str(self.r1)+"_"+str(self.r2)+"_"+self.c1+"_"+self.c2+".png")
+        else:
+            plt.show()
 
 def read_stimuli_from_file(filename):
     stimuli = []
