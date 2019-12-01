@@ -1,8 +1,60 @@
 from stimulus import Stimulus
 
 if __name__=="__main__":
-	print("haloa")
 
+	#C1
+	#Examples
+	folder = "c1"
+	example_stimuli = [Stimulus(.10,.15,"g","r","Not pelty"),
+					Stimulus(.10,.30,"g","r","Pelty"),
+					Stimulus(.10,.35,"g","r","Pelty")]
+
+	test_stimuli = [Stimulus(.1,.45,"g","r"),
+				Stimulus(.10,.2,"g","r")]
+
+	for stimulus in example_stimuli:
+		stimulus.show(save=True,folder=folder)
+
+	for stimulus in test_stimuli:
+		stimulus.show(plot_title="Is this pelty?",save=True,folder=folder)
+
+	#C2
+	#Examples
+	folder = "c2"
+	example_stimuli = [Stimulus(.02,.2,"r","g","Not pelty"),
+					Stimulus(.1,.2,"r","g","Not pelty"),
+					Stimulus(.10,.30,"g","r","Pelty"),
+					Stimulus(.10,.35,"g","r","Pelty")]
+
+	test_stimuli = [Stimulus(.1,.45,"g","r"),
+					Stimulus(.10,.2,"g","r")]
+
+	for stimulus in example_stimuli:
+		stimulus.show(save=True,folder=folder)
+
+	for stimulus in test_stimuli:
+		stimulus.show(plot_title="Is this pelty?",save=True,folder=folder)
+
+
+	#C3
+	#Examples
+	folder = "c3"
+	example_stimuli = [Stimulus(.02,.2,"r","g","Not pelty"),
+					Stimulus(.18,.2,"g","r","Not pelty"),
+					Stimulus(.10,.30,"g","r","Pelty"),
+					Stimulus(.10,.35,"g","r","Pelty")]
+
+	test_stimuli = [Stimulus(.1,.45,"g","r"),
+					Stimulus(.10,.2,"g","r")]
+
+	for stimulus in example_stimuli:
+		stimulus.show(save=True,folder=folder)
+
+	for stimulus in test_stimuli:
+		stimulus.show(plot_title="Is this pelty?",save=True,folder=folder)
+
+
+"""
 	# For Quiz 1
 	# Test Examples
 	folder = "Q1"
@@ -55,6 +107,6 @@ if __name__=="__main__":
 
 	for stimulus in test_stimuli:
 		stimulus.show("Is this pelty?",save=True,folder=folder)
-
+"""
 
 

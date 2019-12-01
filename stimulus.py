@@ -84,8 +84,8 @@ class Stimulus:
         fig, ax = plt.subplots(figsize=(6,6))
         ax.add_artist(inner_circle)
         ax.add_artist(outer_circle)
-        fig.suptitle(title)
-        plt.legend((inner_circle,outer_circle),("Radius = "+str(self.r1),"Radius = "+str(self.r2)))
+        # fig.suptitle(title)
+        # plt.legend((inner_circle,outer_circle),("Radius = "+str(self.r1),"Radius = "+str(self.r2)))
         if save:
             if folder:
                 plt.savefig("imgs/"+folder+"/"+self.pelty_string+"_stimulus_"+str(self.r1)+"_"+str(self.r2)+"_"+self.c1+"_"+self.c2+".png")
