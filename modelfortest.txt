@@ -30,6 +30,14 @@ var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
           ]
 var new_obj_4 = [0.1,0.45,'g','r']
 
+// For running
+var obs = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj = [0.1,0.45,'g','r']
+
 var noise_param = Math.exp(-1.5)
 
 var getpelty = function(obj){
@@ -149,21 +157,8 @@ var model = function(){
  }
  var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
 
-//  // Version 1 (Borderline)
-//  mapData({data: obs_1}, obsFn)
-//  var ans = apply_rule(new_obj_1,valued_rules,0)
- 
-//  // Version 2 (Control)
-//  mapData({data: obs_2}, obsFn)
-//  var ans = apply_rule(new_obj_2,valued_rules,0)
- 
-//  // Version 3 (Borderline)
-//  mapData({data: obs_3}, obsFn)
-//  var ans = apply_rule(new_obj_3,valued_rules,0)
- 
- // Version 4 (Control)
- mapData({data: obs_4}, obsFn)
- var ans = apply_rule(new_obj_4,valued_rules,0)
+ mapData({data: obs}, obsFn)
+ var ans = apply_rule(new_obj,valued_rules,0)
  
  return ans
 }
