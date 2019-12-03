@@ -1,10 +1,34 @@
-var obs = [{property:[0.1,0.2,'k'],peltyness:"not P"},
-           {property:[0.1,0.3,'r'],peltyness:"not P"},
-           {property:[0.1,0.3,'g'],peltyness:"not P"},
-           {property:[0.2,0.3,'y'],peltyness:"P"},
-           {property:[0.3,0.3,'b'],peltyness:"P"},
+// Version 1 Borderline
+var obs_1 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.2,'g','r'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
-var new_obj = [0.05,0.5,'w']
+var new_obj_1 = [0.1,0.2,'g','r']
+
+// Version 2 Control
+var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.2,'g','r'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_2 = [0.1,0.45,'g','r']
+
+// Version 3 Borderline
+var obs_3 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_3 = [0.1,0.2,'g','r']
+
+// Version 4 Control
+var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_4 = [0.1,0.45,'g','r']
 
 var noise_param = Math.exp(-1.5)
 
@@ -61,7 +85,7 @@ var gradrule = function(){
 }
 
 var nongradrule = function(){
-  var measure = sample(Categorical({vs:[0,1,2],ps:[0.33,0.33,0.33]}))
+  var measure = sample(Categorical({vs:[0,1,2,3],ps:[0.25,0.25,0.25,0.25]}))
   var rule = {type:"nongrad",measure:measure}
   return rule
 }
@@ -124,8 +148,23 @@ var model = function(){
    apply_rule(obj,valued_rules,0)
  }
  var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
- mapData({data: obs}, obsFn)
- var ans = apply_rule(new_obj,valued_rules,0)
+
+//  // Version 1 (Borderline)
+//  mapData({data: obs_1}, obsFn)
+//  var ans = apply_rule(new_obj_1,valued_rules,0)
+ 
+//  // Version 2 (Control)
+//  mapData({data: obs_2}, obsFn)
+//  var ans = apply_rule(new_obj_2,valued_rules,0)
+ 
+//  // Version 3 (Borderline)
+//  mapData({data: obs_3}, obsFn)
+//  var ans = apply_rule(new_obj_3,valued_rules,0)
+ 
+ // Version 4 (Control)
+ mapData({data: obs_4}, obsFn)
+ var ans = apply_rule(new_obj_4,valued_rules,0)
+ 
  return ans
 }
 var dist = Infer({method: 'MCMC', samples: 10000}, model)
