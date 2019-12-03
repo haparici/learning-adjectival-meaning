@@ -31,19 +31,25 @@ var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
 var new_obj_4 = [0.1,0.45,'g','r']
 
 // For running
-var obs = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
-           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
-           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
+           {property:[0.1,0.2,'y','b'],peltyness:"P"},
+           {property:[0.04,0.1,'k','y'],peltyness:"P"},
+           {property:[0.05,0.1,'k','y'],peltyness:"P"},
+           {property:[0.2,0.2,'y','b'],peltyness:"not P"},
+           {property:[0.04,0.2,'k','y'],peltyness:"not P"},
+           {property:[0.1,0.4,'w','y'],peltyness:"not P"},
           ]
-var new_obj = [0.1,0.45,'g','r']
+var new_obj = [0.1,0.5,'k','g']
 
 var noise_param = Math.exp(-1.5)
 
+// ignoring "very"
 var getpelty = function(obj){
   return obj.peltyness == "not P" ? "not P" : "P"
 }
 
+// generalized function for getting a pretty reading of the rules 
+// to be printed
 var prettify = function(rules,num,s){
   if (num == rules.length) {
     return s
@@ -56,20 +62,24 @@ var prettify = function(rules,num,s){
   }
 }
 
+// scale: a straight gradable adjective for the radii
 var scaleprettify = function(rule) {
   var p = (rule.rule.polarity == 1) ? ">" : "<"
-  return "r" + (rule.rule.measure+1) + p + rule.value
+  return "m" + (rule.rule.measure+1) + p + rule.value
 }
 
+// compare: comparing the difference between the two
 var compareprettify = function(rule) {
   var p = (rule.rule.polarity == 1) ? ">" : "<"
-  return "r" + (rule.rule.measure+1) + "-" + "r" + (rule.rule.measure2+1) + p + rule.value
+  return "comp: " + "m" + (rule.rule.measure+1) + "-" + "m" + (rule.rule.measure2+1) + p + rule.value
 }
 
+// nongrad: categorical
 var nongradprettify = function(rule) {
-  return "r" + (rule.rule.measure+1) + "=" + rule.value
+  return "m" + (rule.rule.measure+1) + "=" + rule.value
 }
 
+// one radius
 var scale_rule = function(){
   var polarity = sample(Categorical({vs:[-1,1],ps:[0.5,0.5]}))
   var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
@@ -77,13 +87,14 @@ var scale_rule = function(){
   return rule
 }
 
+// comparing two radii
 var compare_rule = function(){
   var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
-  var measure2 = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
-  var rule = {type:"compare",measure:measure,measure2:measure2}
+  var rule = {type:"compare",measure:measure,measure2:1 - measure}
   return rule
 }
 
+// tries both the compare and scale rules
 var gradrule = function(){
   if (flip()) {
     return scale_rule()
@@ -92,12 +103,14 @@ var gradrule = function(){
   }
 }
 
+// tries the categorical
 var nongradrule = function(){
   var measure = sample(Categorical({vs:[0,1,2,3],ps:[0.25,0.25,0.25,0.25]}))
   var rule = {type:"nongrad",measure:measure}
   return rule
 }
 
+// creates a set of rules by concat-ing and generating
 var rule_generator = function(rules){
   if (flip(0.7) && rules.length > 0){
     return rules
@@ -108,18 +121,24 @@ var rule_generator = function(rules){
    }
   }
 
+
 var make_value = function(rules,num,valued_rules){
   if (num == rules.length) {
     return valued_rules
   } else {
-      var theta = (rules[num].measure == 2) ? sample(Categorical({vs:['b','g','r','c','m','y','k','w'],ps:[0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
-      : sample(Uniform({a:0.1,b:0.5}))
+      var theta = (rules[num].measure == 2 || rules[num].measure == 3) ? 
+          sample(Categorical({vs:['b','g','r','c','m','y','k','w'],
+                              ps:[0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
+          : sample(Uniform({a:0.0,b:0.5}))
     var r = {rule:rules[num],value:theta}
     var n = valued_rules.concat(r)
     make_value(rules,num+1,n)
   }
 }
 
+// applying the rules to an object to determine whether pelty or not
+// if any of the rules say that the object is not pelty, then it's
+// not pelty, but otherwise it is pelty -- conjunction
 var apply_rule = function(obj,rules,num){
   if (num == rules.length) {
     return "P"
@@ -155,8 +174,9 @@ var model = function(){
  var f = function(obj){
    apply_rule(obj,valued_rules,0)
  }
+ 
  var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
-
+ 
  mapData({data: obs}, obsFn)
  var ans = apply_rule(new_obj,valued_rules,0)
  
