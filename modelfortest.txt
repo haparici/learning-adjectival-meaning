@@ -41,14 +41,14 @@ var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
           ]
 var new_obj = [0.1,0.5,'k','g']
 
-var noise_param = Math.exp(-1.5)
+var noiseParam = Math.exp(-1.5)
 
 // ignoring "very"
 var getpelty = function(obj){
   return obj.peltyness == "not P" ? "not P" : "P"
 }
 
-// generalized function for getting a pretty reading of the rules 
+// generalized function for getting a pretty reading of the rules
 // to be printed
 var prettify = function(rules,num,s){
   if (num == rules.length) {
@@ -126,7 +126,7 @@ var make_value = function(rules,num,valued_rules){
   if (num == rules.length) {
     return valued_rules
   } else {
-      var theta = (rules[num].measure == 2 || rules[num].measure == 3) ? 
+      var theta = (rules[num].measure == 2 || rules[num].measure == 3) ?
           sample(Categorical({vs:['b','g','r','c','m','y','k','w'],
                               ps:[0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
           : sample(Uniform({a:0.0,b:0.5}))
@@ -174,12 +174,15 @@ var model = function(){
  var f = function(obj){
    apply_rule(obj,valued_rules,0)
  }
- 
- var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
- 
+
+//  var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
+ var obsFn = function(datum){
+   observe(Bernoulli({p: f(datum.property) == "P" ? (1-noiseParam) : noiseParam}), datum.peltyness == "P")
+ }
+
  mapData({data: obs}, obsFn)
  var ans = apply_rule(new_obj,valued_rules,0)
- 
+
  return ans
 }
 var dist = Infer({method: 'MCMC', samples: 10000}, model)
