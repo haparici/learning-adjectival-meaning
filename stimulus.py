@@ -76,14 +76,32 @@ class Stimulus:
             title=plot_title
         else:
             title = "Pelty" if self.pelty == 1 else "Not Pelty" if self.pelty == 0 else ""
-        inner_circle = plt.Circle((0.5,0.5),self.r1,color=self.c1,fill=False)
+        inner_circle = plt.Circle((0.5,0.5),self.r1,color=self.c1,fill=False,lw=2)
         inner_circle.set_label("Inner Circle")
-        outer_circle = plt.Circle((0.5,0.5),self.r2,color=self.c2,fill=False)
+        outer_circle = plt.Circle((0.5,0.5),self.r2,color=self.c2,fill=False,lw=2)
         outer_circle.set_label("Outer Circle")
 
-        fig, ax = plt.subplots(figsize=(6,6))
+        fig, ax = plt.subplots(figsize=(3,3))
         ax.add_artist(inner_circle)
         ax.add_artist(outer_circle)
+        plt.axis('off')
+        plt.tick_params(
+            axis='both',          # changes apply to the x-axis
+            which='both',      # both major and minor ticks are affected
+            bottom=False,      # ticks along the bottom edge are off
+            top=False,         # ticks along the top edge are off
+            left=False,
+            right=False,
+            labelbottom=False,
+            labelleft=False) # labels along the bottom edge are off
+        # plt.tick_params(
+        #     axis='y',          # changes apply to the x-axis
+        #     which='both',      # both major and minor ticks are affected
+        #     bottom=False,      # ticks along the bottom edge are off
+        #     top=False,         # ticks along the top edge are off
+        #     labelbottom=False) # labels along the bottom edge are off
+
+
         # fig.suptitle(title)
         # plt.legend((inner_circle,outer_circle),("Radius = "+str(self.r1),"Radius = "+str(self.r2)))
         if save:

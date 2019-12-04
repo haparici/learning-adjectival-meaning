@@ -6,8 +6,9 @@ if __name__=="__main__":
 	#Examples
 	folder = "c1"
 	example_stimuli = [Stimulus(.10,.15,"g","r","Not pelty"),
-					Stimulus(.10,.30,"g","r","Pelty"),
-					Stimulus(.10,.35,"g","r","Pelty")]
+					Stimulus(.02,.1,"r","g","Not pelty"),
+					Stimulus(.1,.30,"g","r","Pelty"),
+					Stimulus(.1,.4,"g","r","Pelty")]
 
 	test_stimuli = [Stimulus(.1,.45,"g","r"),
 				Stimulus(.10,.2,"g","r")]
@@ -21,10 +22,10 @@ if __name__=="__main__":
 	#C2
 	#Examples
 	folder = "c2"
-	example_stimuli = [Stimulus(.02,.2,"r","g","Not pelty"),
-					Stimulus(.1,.2,"r","g","Not pelty"),
+	example_stimuli = [Stimulus(.02,.10,"r","g","Not pelty"),
+					Stimulus(.08,.10,"r","g","Not pelty"),
 					Stimulus(.10,.30,"g","r","Pelty"),
-					Stimulus(.10,.35,"g","r","Pelty")]
+					Stimulus(.10,.4,"g","r","Pelty")]
 
 	test_stimuli = [Stimulus(.1,.45,"g","r"),
 					Stimulus(.10,.2,"g","r")]
@@ -42,7 +43,7 @@ if __name__=="__main__":
 	example_stimuli = [Stimulus(.02,.2,"r","g","Not pelty"),
 					Stimulus(.18,.2,"g","r","Not pelty"),
 					Stimulus(.10,.30,"g","r","Pelty"),
-					Stimulus(.10,.35,"g","r","Pelty")]
+					Stimulus(.10,.4,"g","r","Pelty")]
 
 	test_stimuli = [Stimulus(.1,.45,"g","r"),
 					Stimulus(.10,.2,"g","r")]
