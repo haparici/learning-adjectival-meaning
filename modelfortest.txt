@@ -1,37 +1,5 @@
-// Version 1 Borderline
-var obs_1 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
-           {property:[0.1,0.2,'g','r'],peltyness:"not P"},
-           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
-          ]
-var new_obj_1 = [0.1,0.2,'g','r']
-
-// Version 2 Control
-var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
-           {property:[0.1,0.2,'g','r'],peltyness:"not P"},
-           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
-          ]
-var new_obj_2 = [0.1,0.45,'g','r']
-
-// Version 3 Borderline
-var obs_3 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
-           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
-           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
-          ]
-var new_obj_3 = [0.1,0.2,'g','r']
-
-// Version 4 Control
-var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
-           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
-           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
-          ]
-var new_obj_4 = [0.1,0.45,'g','r']
-
-// For running
-var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
+// Some testcases
+var test_obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
            {property:[0.1,0.2,'y','b'],peltyness:"P"},
            {property:[0.04,0.1,'k','y'],peltyness:"P"},
            {property:[0.05,0.1,'k','y'],peltyness:"P"},
@@ -39,13 +7,70 @@ var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
            {property:[0.04,0.2,'k','y'],peltyness:"not P"},
            {property:[0.1,0.4,'w','y'],peltyness:"not P"},
           ]
-var new_obj = [0.1,0.5,'k','g']
+var test_new_obj = [0.1,0.5,'k','g']
 
-var noiseParam = Math.exp(-1.5)
+// Version 1 Borderline
+var obs_1 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.15,'g','r'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_1 = [0.1,0.2,'g','r']
+
+// Version 2 Control
+var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.15,'g','r'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_2 = [0.1,0.45,'g','r']
+
+// Version 3 Borderline
+var obs_3 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.4,'g','r'],peltyness:"P"},
+           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_3 = [0.1,0.2,'g','r']
+
+// Version 4 Control
+var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
+           {property:[0.1,0.4,'g','r'],peltyness:"P"},
+           {property:[0.08,0.1,'r','g'],peltyness:"not P"},
+           {property:[0.02,0.1,'r','g'],peltyness:"not P"},
+          ]
+var new_obj_4 = [0.1,0.45,'g','r']
 
 // ignoring "very"
-var getpelty = function(obj){
+var ignore_very = function(obj){
   return obj.peltyness == "not P" ? "not P" : "P"
+}
+
+var origin = function(obj){
+  return obj.peltyness
+}
+
+// For testing
+var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P",class:"circle"},
+           {property:[0.3,0.2,'y','b'],peltyness:"P",class:"square"},
+           {property:[0.2,0.2,'k','y'],peltyness:"not P",class:"circle"},
+           {property:[0.4,0.4,'w','y'],peltyness:"not P",class:"square"},
+          ]
+var new_obj = {property:[0.25,0.5,'k','g'],class:"square"}
+var getpelty = origin
+var use_class = false
+// var getpelty = ignore_very
+
+// For running
+// var obs = obs_1
+// var new_obj = new_obj_1
+
+var classes = ["circle","square"]
+var class_to_num = {circle:0,square:1}
+var noiseParam = Math.exp(-1.5)
+
+var getclass = function(obj){
+  return use_class ? class_to_num[obj.class] : 0
 }
 
 // generalized function for getting a pretty reading of the rules
@@ -156,34 +181,36 @@ var apply_rule = function(obj,rules,num){
 }
 
 var scaletest = function(obj,rule){
-  return (obj[rule.rule.measure] - rule.value) * rule.rule.polarity > 0 ? true : false
+  return (obj[rule.rule.measure] - rule.value) * rule.rule.polarity > 0 ? false : true
 }
 
 var comparetest = function(obj,rule){
-  return (obj[rule.rule.measure] - obj[rule.rule.measure2] - rule.value) * rule.rule.polarity > 0 ? true : false
+  return (obj[rule.rule.measure] - obj[rule.rule.measure2] - rule.value) * rule.rule.polarity > 0 ? false : true
 }
 
 var nongradtest = function(obj,rule){
-  return (obj[rule.rule.measure] == rule.value) ? true : false
+  return (obj[rule.rule.measure] == rule.value) ? false : true
 }
 
 var model = function(){
  var rules = rule_generator([])
  var valued_rules = make_value(rules,0,[])
- var g = prettify(valued_rules,0,"")
+ var assign_values = function(x){
+   return make_value(rules,0,[])
+ }
+ var class_rules = mapData({data:classes},assign_values)
+ var g = prettify(class_rules[0],0,"")
  var f = function(obj){
-   apply_rule(obj,valued_rules,0)
+   apply_rule(obj.property,class_rules[getclass(obj)],0)
  }
 
-//  var obsFn = function(datum){condition(f(datum.property) == datum.peltyness)}
- var obsFn = function(datum){
-   observe(Bernoulli({p: f(datum.property) == "P" ? (1-noiseParam) : noiseParam}), datum.peltyness == "P")
- }
+//   var obsFn = function(datum){condition(f(datum) == getpelty(datum))}
+ var obsFn = function(datum){observe(Bernoulli({p: f(datum) == "P" ? (1-noiseParam) : noiseParam}), getpelty(datum) == "P")}
 
  mapData({data: obs}, obsFn)
- var ans = apply_rule(new_obj,valued_rules,0)
+ var ans = f(new_obj)
 
  return ans
 }
-var dist = Infer({method: 'MCMC', samples: 10000}, model)
-viz(dist)
+var dist = Infer({method: 'MCMC', samples: 50000}, model)
+viz.table(dist)
