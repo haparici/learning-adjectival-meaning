@@ -9,13 +9,31 @@ var test_obs = [{property:[0.1,0.4,'y','r'],peltyness:"P"},
           ]
 var test_new_obj = [0.1,0.5,'k','g']
 
+// Class testcase
+var class_obs = [{property:[0.1,0.4,'y','r'],peltyness:"P",class:"circle"},
+           {property:[0.3,0.4,'y','r'],peltyness:"P",class:"square"},
+           {property:[0.2,0.4,'y','r'],peltyness:"not P",class:"circle"},
+           {property:[0.35,0.4,'y','r'],peltyness:"not P",class:"square"},
+          ]
+var class_new_obj = {property:[0.25,0.4,'y','r'],class:"circle"}
+
+// very testcase
+var very_obs = [{property:[0.2,0.4,'y','r'],peltyness:"P",class:"circle"},
+           {property:[0.25,0.2,'y','b'],peltyness:"P",class:"square"},
+           {property:[0.4,0.2,'y','b'],peltyness:"very P",class:"square"},
+           {property:[0.45,0.2,'y','b'],peltyness:"very P",class:"square"},
+           {property:[0.1,0.2,'k','y'],peltyness:"not P",class:"circle"},
+           {property:[0.15,0.4,'w','y'],peltyness:"not P",class:"square"},
+          ]
+var very_new_obj = {property:[0.35,0.5,'k','g'],class:"square"}
+
 // Version 1 Borderline
 var obs_1 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
            {property:[0.1,0.35,'g','r'],peltyness:"P"},
            {property:[0.1,0.15,'g','r'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
-var new_obj_1 = [0.1,0.2,'g','r']
+var new_obj_1 = {property:[0.1,0.2,'g','r']}
 
 // Version 2 Control
 var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
@@ -23,7 +41,7 @@ var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
            {property:[0.1,0.15,'g','r'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
-var new_obj_2 = [0.1,0.45,'g','r']
+var new_obj_2 = {property:[0.1,0.45,'g','r']}
 
 // Version 3 Borderline
 var obs_3 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
@@ -31,7 +49,7 @@ var obs_3 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
            {property:[0.08,0.1,'r','g'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
-var new_obj_3 = [0.1,0.2,'g','r']
+var new_obj_3 = {property:[0.1,0.2,'g','r']}
 
 // Version 4 Control
 var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
@@ -39,35 +57,28 @@ var obs_4 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
            {property:[0.08,0.1,'r','g'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
-var new_obj_4 = [0.1,0.45,'g','r']
+var new_obj_4 = {property:[0.1,0.45,'g','r']}
 
 // ignoring "very"
 var ignore_very = function(obj){
-  return obj.peltyness == "not P" ? "not P" : "P"
+  return obj == "not P" ? "not P" : "P"
 }
 
+// not ignoring "very"
 var origin = function(obj){
-  return obj.peltyness
+  return obj
 }
 
 // For testing
-var obs = [{property:[0.1,0.4,'y','r'],peltyness:"P",class:"circle"},
-           {property:[0.3,0.2,'y','b'],peltyness:"P",class:"square"},
-           {property:[0.2,0.2,'k','y'],peltyness:"not P",class:"circle"},
-           {property:[0.4,0.4,'w','y'],peltyness:"not P",class:"square"},
-          ]
-var new_obj = {property:[0.25,0.5,'k','g'],class:"square"}
-var getpelty = origin
+var obs = obs_1
+var new_obj = new_obj_1
+var getpelty = ignore_very
 var use_class = false
-// var getpelty = ignore_very
 
-// For running
-// var obs = obs_1
-// var new_obj = new_obj_1
+// var noiseParam = 0.05
 
 var classes = ["circle","square"]
 var class_to_num = {circle:0,square:1}
-var noiseParam = Math.exp(-1.5)
 
 var getclass = function(obj){
   return use_class ? class_to_num[obj.class] : 0
@@ -106,15 +117,15 @@ var nongradprettify = function(rule) {
 
 // one radius
 var scale_rule = function(){
-  var polarity = sample(Categorical({vs:[-1,1],ps:[0.5,0.5]}))
-  var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
+  var polarity = sample(Categorical({vs:[-1,1]}))
+  var measure = sample(Categorical({vs:[0,1]}))
   var rule = {type:"scale",measure:measure,polarity:polarity}
   return rule
 }
 
 // comparing two radii
 var compare_rule = function(){
-  var measure = sample(Categorical({vs:[0,1],ps:[0.5,0.5]}))
+  var measure = sample(Categorical({vs:[0,1]}))
   var rule = {type:"compare",measure:measure,measure2:1 - measure}
   return rule
 }
@@ -130,32 +141,32 @@ var gradrule = function(){
 
 // tries the categorical
 var nongradrule = function(){
-  var measure = sample(Categorical({vs:[0,1,2,3],ps:[0.25,0.25,0.25,0.25]}))
+  var measure = sample(Categorical({vs:[2,3]}))
   var rule = {type:"nongrad",measure:measure}
   return rule
 }
 
 // creates a set of rules by concat-ing and generating
 var rule_generator = function(rules){
-  if (flip(0.7) && rules.length > 0){
+  if (flip() && rules.length > 0){
     return rules
   }{
     var r = (flip()) ? gradrule() : nongradrule()
     var n = rules.concat(r)
     return rule_generator(n)
    }
-  }
+}
 
 
 var make_value = function(rules,num,valued_rules){
   if (num == rules.length) {
     return valued_rules
   } else {
-      var theta = (rules[num].measure == 2 || rules[num].measure == 3) ?
-          sample(Categorical({vs:['b','g','r','c','m','y','k','w'],
-                              ps:[0.125,0.125,.0125,0.125,0.125,0.125,0.125,0.125]}))
-          : sample(Uniform({a:0.0,b:0.5}))
-    var r = {rule:rules[num],value:theta}
+    var theta = (rules[num].measure == 2 || rules[num].measure == 3) ?
+          sample(Categorical({vs:['r','g']}))
+          : sample(Discrete({ps:ones([1001,1])}))/1000
+    var epsilon = sample(Discrete({ps:ones([201,1])}))/1000
+    var r = {rule:rules[num],value:theta,degree:epsilon}
     var n = valued_rules.concat(r)
     make_value(rules,num+1,n)
   }
@@ -164,24 +175,33 @@ var make_value = function(rules,num,valued_rules){
 // applying the rules to an object to determine whether pelty or not
 // if any of the rules say that the object is not pelty, then it's
 // not pelty, but otherwise it is pelty -- conjunction
-var apply_rule = function(obj,rules,num){
+var apply_rule = function(obj,rules,num,degree){
   if (num == rules.length) {
-    return "P"
+    if (degree == 0){
+      return "P"
+    } else {
+      return "very P"
+    }
   } else {
     var f = (rules[num].rule.type == "scale") ? scaletest :
             (rules[num].rule.type == "compare") ? comparetest :
             (rules[num].rule.type == "nongrad") ? nongradtest :
             0
-    if (f(obj,rules[num])) {
+    var res = f(obj,rules[num])
+    if (res == "very") {
+      return apply_rule(obj,rules,num+1,1)
+    } else if (res){
       return "not P"
     } else {
-      return apply_rule(obj,rules,num+1)
+      return apply_rule(obj,rules,num+1,degree)
     }
   }
 }
 
 var scaletest = function(obj,rule){
-  return (obj[rule.rule.measure] - rule.value) * rule.rule.polarity > 0 ? false : true
+  return (obj[rule.rule.measure] - rule.value - rule.degree) * rule.rule.polarity > 0 ? "very" :
+         (obj[rule.rule.measure] - rule.value ) * rule.rule.polarity > 0 ? false :
+         true
 }
 
 var comparetest = function(obj,rule){
@@ -201,14 +221,15 @@ var model = function(){
  var class_rules = mapData({data:classes},assign_values)
  var g = prettify(class_rules[0],0,"")
  var f = function(obj){
-   apply_rule(obj.property,class_rules[getclass(obj)],0)
+   apply_rule(obj.property,class_rules[getclass(obj)],0,0)
  }
 
-//   var obsFn = function(datum){condition(f(datum) == getpelty(datum))}
- var obsFn = function(datum){observe(Bernoulli({p: f(datum) == "P" ? (1-noiseParam) : noiseParam}), getpelty(datum) == "P")}
+
+ var obsFn = function(datum){condition(getpelty(f(datum)) == getpelty(datum.peltyness))}
+//  var obsFn = function(datum){observe(Bernoulli({p: getpelty(f(datum)) == "P" ? (1-noiseParam) : noiseParam}), getpelty(datum.peltyness) == "P")}
 
  mapData({data: obs}, obsFn)
- var ans = f(new_obj)
+ var ans = getpelty(f(new_obj))
 
  return ans
 }
