@@ -29,7 +29,7 @@ var very_new_obj = {property:[0.35,0.5,'k','g'],class:"square"}
 
 // Version 1 Borderline
 var obs_1 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"very P"},
            {property:[0.1,0.15,'g','r'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
@@ -37,7 +37,7 @@ var new_obj_1 = {property:[0.1,0.2,'g','r']}
 
 // Version 2 Control
 var obs_2 = [{property:[0.1,0.3,'g','r'],peltyness:"P"},
-           {property:[0.1,0.35,'g','r'],peltyness:"P"},
+           {property:[0.1,0.35,'g','r'],peltyness:"very P"},
            {property:[0.1,0.15,'g','r'],peltyness:"not P"},
            {property:[0.02,0.1,'r','g'],peltyness:"not P"},
           ]
@@ -72,10 +72,10 @@ var origin = function(obj){
 // For testing
 var obs = obs_1
 var new_obj = new_obj_1
-var getpelty = ignore_very
+var getpelty = origin
 var use_class = false
 
-// var noiseParam = 0.05
+var noiseParam = 0.1
 
 var classes = ["circle","square"]
 var class_to_num = {circle:0,square:1}
@@ -164,9 +164,8 @@ var make_value = function(rules,num,valued_rules){
   } else {
     var theta = (rules[num].measure == 2 || rules[num].measure == 3) ?
           sample(Categorical({vs:['r','g']}))
-          : sample(Discrete({ps:ones([1001,1])}))/1000
-    var epsilon = sample(Discrete({ps:ones([201,1])}))/1000
-    var r = {rule:rules[num],value:theta,degree:epsilon}
+          : sample(Uniform({a:0,b:0.5}))
+    var r = {rule:rules[num],value:theta}
     var n = valued_rules.concat(r)
     make_value(rules,num+1,n)
   }
@@ -199,13 +198,17 @@ var apply_rule = function(obj,rules,num,degree){
 }
 
 var scaletest = function(obj,rule){
-  return (obj[rule.rule.measure] - rule.value - rule.degree) * rule.rule.polarity > 0 ? "very" :
+  var epsilon = sample(Uniform({a:0,b:0.5}))
+  return (obj[rule.rule.measure] - rule.value - epsilon) * rule.rule.polarity > 0 ? "very" :
          (obj[rule.rule.measure] - rule.value ) * rule.rule.polarity > 0 ? false :
          true
 }
 
 var comparetest = function(obj,rule){
-  return (obj[rule.rule.measure] - obj[rule.rule.measure2] - rule.value) * rule.rule.polarity > 0 ? false : true
+  var epsilon = sample(Uniform({a:0,b:0.5}))
+  return (obj[rule.rule.measure] - obj[rule.rule.measure2] - rule.value - epsilon) * rule.rule.polarity > 0 ? "very" :
+         (obj[rule.rule.measure] - obj[rule.rule.measure2] - rule.value) * rule.rule.polarity > 0 ? false :
+         true
 }
 
 var nongradtest = function(obj,rule){
@@ -229,9 +232,9 @@ var model = function(){
 //  var obsFn = function(datum){observe(Bernoulli({p: getpelty(f(datum)) == "P" ? (1-noiseParam) : noiseParam}), getpelty(datum.peltyness) == "P")}
 
  mapData({data: obs}, obsFn)
- var ans = getpelty(f(new_obj))
+ var ans = ignore_very(f(new_obj))
 
  return ans
 }
-var dist = Infer({method: 'MCMC', samples: 50000}, model)
+var dist = Infer({method: 'MCMC', samples:50000}, model)
 viz.table(dist)
